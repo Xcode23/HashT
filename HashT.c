@@ -54,12 +54,33 @@ void eraselist(node* oldlist){
   }
 }
 
+void deleteHtable(htable* hashtable){
+  int i;
+  for(i=0;i<hashtable->size;i++)
+    eraselist(hashtable->table[i]);
+  free(hashtable->table);
+  free(hashtable);
+}
+
 void* getkey(node* node){
   return node->key;
 }
 
 void* getvalue(node* node){
   return node->value;
+}
+
+void* get(htable* hashtable,void* key){
+  int location=hashtable->hashcode(key);
+  location=location%hashtable->size;
+  node* auxnode=hashtable->table[location];
+  if(!key)return NULL;
+  if(auxnode==NULL)return NULL;
+  while(auxnode){
+    if(hashtable->equals(getkey(auxnode),key))return getvalue(auxnode);
+    auxnode=auxnode->next;
+  }
+  return NULL;
 }
 
 htable* resize(htable* hashtable){
@@ -79,7 +100,7 @@ htable* resize(htable* hashtable){
     if(oldtable[i]){
       auxnode=oldtable[i];
       while(auxnode!=NULL){
-        insert(hashtable,getkey(auxnode),getvalue(auxnode));
+        put(hashtable,getkey(auxnode),getvalue(auxnode));
         auxnode=auxnode->next;
       }
       eraselist(oldtable[i]);
@@ -90,9 +111,15 @@ htable* resize(htable* hashtable){
   return hashtable;
 }
 
+void* contains(htable* hashtable,void* key){
 
+}
 
-void* insert(htable* hashtable, void* key, void* value){
+void* remove(htable hashtable,void* key){
+  
+}
+
+void* put(htable* hashtable, void* key, void* value){
   int location,equal=0;
   node *auxnode, *newnode;
   key=hashtable->clonekey(key);
@@ -116,15 +143,26 @@ void* insert(htable* hashtable, void* key, void* value){
   if(hashtable->table[location]==NULL)
     hashtable->table[location]=newnode;
   else{
-    auxnode=hashtable->table[location];
-    while(auxnode->next&&(!(equal=hashtable->equals(auxnode->next->key,key))))
-      auxnode=auxnode->next;
-    if(equal){
-      newnode->next=auxnode->next->next;
-      erasenode(auxnode->next);
-      hashtable->used--;
+    if(hashtable->equals(hashtable->table[location]->key,key)){
+      newnode->next=hashtable->table[location]->next;
+      erasenode(hashtable->table[location]);
+      hashtable->table[location]=newnode;
     }
-    auxnode->next=newnode;
+    else{
+      auxnode=hashtable->table[location];
+      while(auxnode->next){
+        equal=hashtable->equals(auxnode->next->key,key);
+        if(equal)break;
+        auxnode=auxnode->next;
+      }
+      equal=hashtable->equals(auxnode->next->key,key);
+      if(equal){
+        newnode->next=auxnode->next->next;
+        erasenode(auxnode->next);
+        hashtable->used--;
+      }
+      auxnode->next=newnode;
+    }
   }
   hashtable->used++;
 
