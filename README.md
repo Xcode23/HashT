@@ -16,29 +16,29 @@ The Arguments of this function are:
 
 Examples of all these functions have been provided for Strings and integers, as seen below.
 
-To delete an hash table:
+To delete an hash table:                                 
 ***void deleteHtable(htable* hashtable);***
 
-To insert a new key-value pair in hash table:
+To insert a new key-value pair in hash table:                    
 ***void* put(htable* hashtable, void* key, void* value);***
 
 If key already exists value is replaced.
 
-To get value from key;
+To get value from key:                 
 ***void* get(htable* hashtable,void* key);***
 
-To check if key exists in hash table:
+To check if key exists in hash table:      
 ***int contains(htable* hashtable,void* key);***
 
 Returns 1 if key exists, 0 if it doesn't.
 
-To remove a key-value pair:
+To remove a key-value pair:     
 ***void removePair(htable* hashtable,void* key);***
 
-Provided example required functions for String and Integers:
-***unsigned long hashString(void* voidkey);***
-***unsigned long hashInt(void* voidkey);***
-***void* cloneString(void* str);***
-***void* cloneInt(void* integer);***
-***int equalsString(void* str1, void* str2);***
-***int equalsInt(void* int1, void* int2);***
+Provided example required functions for String and Integers:         
+***unsigned long hashString(void* voidkey);***  
+***unsigned long hashInt(void* voidkey);***  
+***void* cloneString(void* str);***   
+***void* cloneInt(void* integer);***   
+***int equalsString(void* str1, void* str2);***   
+***int equalsInt(void* int1, void* int2);***   
