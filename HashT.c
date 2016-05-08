@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "HashT.h"
+#include <stdio.h>
 
-#define STARTINGSIZE 16
+#define STARTINGSIZE 4
 #define LOADFACTOR 0.7
 #define HASH(hashtable,key) ({(hashtable->hashcode(key))%(hashtable->size);})
 
@@ -25,9 +26,12 @@ struct _hashtable_{
 
 htable* newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*), void* (*clonekeyfunc)(void*), void* (*clonevaluefunc)(void*)){
   htable* newtable;
+  int i;
 
   if(!(newtable=(htable*)malloc(sizeof(htable))))
     return NULL;
+
+
 
   newtable->hashcode=hashfunc;
   newtable->equals=equalsfunc;
@@ -37,6 +41,8 @@ htable* newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*
   newtable->used=0;
   if(!(newtable->table=(node**)malloc(newtable->size*sizeof(node*))))
     return NULL;
+
+  for(i=0;i<newtable->size;i++)newtable->table[i]=NULL;
 
   return newtable;
 }
@@ -54,6 +60,21 @@ void eraselist(node* oldlist){
     erasenode(oldlist);
     oldlist=next;
   }
+}
+
+node** createTable(int size){
+  int i;
+  node** auxtable=(node**)malloc(size*sizeof(node*));
+  for(i=0;i<size;i++)auxtable[i]=NULL;
+  return auxtable;
+}
+
+node* createNode(){
+  node* auxnode=(node*)malloc(sizeof(node));
+  auxnode->key=NULL;
+  auxnode->value=NULL;
+  auxnode->next=NULL;
+  return auxnode;
 }
 
 void deleteHtable(htable* hashtable){
@@ -90,7 +111,7 @@ htable* resize(htable* hashtable){
   int i,oldsize=hashtable->size;
 
   hashtable->size=hashtable->size*2;
-  if(!(newtable=(node**)malloc(hashtable->size*sizeof(node*))))
+  if(!(newtable=createTable(hashtable->size)))
     return NULL;
 
   hashtable->table=newtable;
@@ -107,8 +128,8 @@ htable* resize(htable* hashtable){
       eraselist(oldtable[i]);
     }
   }
-  free(oldtable);
 
+  free(oldtable);
   return hashtable;
 }
 
@@ -124,7 +145,7 @@ int contains(htable* hashtable,void* key){
   return 0;
 }
 
-void remove(htable* hashtable,void* key){
+void removePair(htable* hashtable,void* key){
   int location=HASH(hashtable,key);
   node *prev=NULL, *auxnode=hashtable->table[location];
   if(!key)return;
@@ -162,14 +183,14 @@ void* put(htable* hashtable, void* key, void* value){
 
   if(location<0)return NULL;
 
-  if(!(newnode=(node*)malloc(sizeof(node))))
+  if(!(newnode=createNode()))
     return NULL;
 
   newnode->key=key;
   newnode->value=value;
-
-  if(hashtable->table[location]==NULL)
+  if(hashtable->table[location]==NULL){
     hashtable->table[location]=newnode;
+  }
   else{
     if(hashtable->equals(hashtable->table[location]->key,key)){
       newnode->next=hashtable->table[location]->next;
@@ -183,7 +204,7 @@ void* put(htable* hashtable, void* key, void* value){
         if(equal)break;
         auxnode=auxnode->next;
       }
-      equal=hashtable->equals(auxnode->next->key,key);
+
       if(equal){
         newnode->next=auxnode->next->next;
         erasenode(auxnode->next);
@@ -247,4 +268,12 @@ int equalsInt(void* int1, void* int2){
   int* b=(int*)int2;
   if(*a == *b)return 1;
   else return 0;
+}
+
+int giveSize(htable* hashtable){
+  return hashtable->size;
+}
+
+int giveUsed(htable* hashtable){
+  return hashtable->used;
 }
