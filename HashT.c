@@ -152,16 +152,14 @@ void removePair(htable* hashtable,void* key){
   if(auxnode==NULL)return;
   while(auxnode){
     if(hashtable->equals(getkey(auxnode),key)){
-      if(!prev){
+      if(!prev)
         hashtable->table[location]=auxnode->next;
-        erasenode(auxnode);
-        break;
-      }
-      else{
+      else
         prev->next=auxnode->next;
-        erasenode(auxnode);
-        break;
-      }
+
+      erasenode(auxnode);
+      hashtable->used--;
+      break;
     }
     else{
       prev=auxnode;
