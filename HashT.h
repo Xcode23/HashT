@@ -19,8 +19,5 @@ void* cloneInt(void* integer);//provided integer cloning function
 int equalsString(void* str1, void* str2);//provided string equals function
 int equalsInt(void* int1, void* int2);//provided integer equals function
 
-int giveSize(htable* hashtable);
-int giveUsed(htable* hashtable);
-
 
 #endif
