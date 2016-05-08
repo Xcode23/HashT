@@ -27,6 +27,8 @@ If key already exists value is replaced.
 To get value from key:                 
 ***void* get(htable* hashtable,void* key);***
 
+returns malloced copy of value that should be freed when no longer needed
+
 To check if key exists in hash table:      
 ***int contains(htable* hashtable,void* key);***
 

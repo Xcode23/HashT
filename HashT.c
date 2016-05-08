@@ -99,7 +99,7 @@ void* get(htable* hashtable,void* key){
   if(!key)return NULL;
   if(auxnode==NULL)return NULL;
   while(auxnode){
-    if(hashtable->equals(getkey(auxnode),key))return getvalue(auxnode);
+    if(hashtable->equals(getkey(auxnode),key))return hashtable->clonevalue(auxnode->value);
     auxnode=auxnode->next;
   }
   return NULL;
@@ -173,6 +173,8 @@ void* put(htable* hashtable, void* key, void* value){
   node *auxnode, *newnode;
   key=hashtable->clonekey(key);
   value=hashtable->clonevalue(value);
+
+  if(key==NULL||value==NULL)return NULL;
 
   if((float)hashtable->used/(float)hashtable->size>LOADFACTOR)
     if(!resize(hashtable))return NULL;
