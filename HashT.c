@@ -3,7 +3,7 @@
 #include "HashT.h"
 #include <stdio.h>
 
-#define STARTINGSIZE 4
+#define STARTINGSIZE 16
 #define LOADFACTOR 0.7
 #define HASH(hashtable,key) ({(hashtable->hashcode(key))%(hashtable->size);})
 
@@ -28,10 +28,11 @@ htable* newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*
   htable* newtable;
   int i;
 
-  if(!(newtable=(htable*)malloc(sizeof(htable))))
+  if(hashfunc==NULL || equalsfunc==NULL || clonekeyfunc==NULL || clonevaluefunc==NULL)
     return NULL;
 
-
+  if(!(newtable=(htable*)malloc(sizeof(htable))))
+    return NULL;
 
   newtable->hashcode=hashfunc;
   newtable->equals=equalsfunc;
@@ -48,9 +49,11 @@ htable* newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*
 }
 
 void erasenode(node* oldnode){
-  free(oldnode->key);
-  free(oldnode->value);
-  free(oldnode);
+  if(oldnode!=NULL){
+    free(oldnode->key);
+    free(oldnode->value);
+    free(oldnode);
+  }
 }
 
 void eraselist(node* oldlist){
@@ -79,27 +82,25 @@ node* createNode(){
 
 void deleteHtable(htable* hashtable){
   int i;
+  if(hashtable==NULL)return;
   for(i=0;i<hashtable->size;i++)
     eraselist(hashtable->table[i]);
   free(hashtable->table);
   free(hashtable);
 }
 
-void* getkey(node* node){
-  return node->key;
-}
-
-void* getvalue(node* node){
-  return node->value;
-}
-
 void* get(htable* hashtable,void* key){
-  int location=HASH(hashtable,key);
-  node* auxnode=hashtable->table[location];
-  if(!key)return NULL;
+  int location;
+  node* auxnode;
+  if(hashtable==NULL)return NULL;
+  if(key==NULL)return NULL;
+
+  location=HASH(hashtable,key);
+  auxnode=hashtable->table[location];
+
   if(auxnode==NULL)return NULL;
   while(auxnode){
-    if(hashtable->equals(getkey(auxnode),key))return hashtable->clonevalue(auxnode->value);
+    if(hashtable->equals(auxnode->key,key))return hashtable->clonevalue(auxnode->value);
     auxnode=auxnode->next;
   }
   return NULL;
@@ -122,7 +123,7 @@ htable* resize(htable* hashtable){
     if(oldtable[i]){
       auxnode=oldtable[i];
       while(auxnode!=NULL){
-        put(hashtable,getkey(auxnode),getvalue(auxnode));
+        put(hashtable,auxnode->key,auxnode->value);
         auxnode=auxnode->next;
       }
       eraselist(oldtable[i]);
@@ -134,24 +135,36 @@ htable* resize(htable* hashtable){
 }
 
 int contains(htable* hashtable,void* key){
-  int location=HASH(hashtable,key);
-  node* auxnode=hashtable->table[location];
+  int location;
+  node* auxnode;
+
+  if(!hashtable)return 0;
   if(!key)return 0;
+
+  location=HASH(hashtable,key);
+  auxnode=hashtable->table[location];
+
   if(auxnode==NULL)return 0;
   while(auxnode){
-    if(hashtable->equals(getkey(auxnode),key))return 1;
+    if(hashtable->equals(auxnode->key,key))return 1;
     auxnode=auxnode->next;
   }
   return 0;
 }
 
 void removePair(htable* hashtable,void* key){
-  int location=HASH(hashtable,key);
-  node *prev=NULL, *auxnode=hashtable->table[location];
+  int location;
+  node *prev=NULL, *auxnode;
+
   if(!key)return;
+  if(!hashtable)return;
+
+  location=HASH(hashtable,key);
+  auxnode=hashtable->table[location];
+
   if(auxnode==NULL)return;
   while(auxnode){
-    if(hashtable->equals(getkey(auxnode),key)){
+    if(hashtable->equals(auxnode->key,key)){
       if(!prev)
         hashtable->table[location]=auxnode->next;
       else
@@ -171,10 +184,11 @@ void removePair(htable* hashtable,void* key){
 void* put(htable* hashtable, void* key, void* value){
   int location,equal=0;
   node *auxnode, *newnode;
+
+  if(key==NULL||value==NULL||hashtable==NULL)return NULL;
+
   key=hashtable->clonekey(key);
   value=hashtable->clonevalue(value);
-
-  if(key==NULL||value==NULL)return NULL;
 
   if((float)hashtable->used/(float)hashtable->size>LOADFACTOR)
     if(!resize(hashtable))return NULL;
