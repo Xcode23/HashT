@@ -5,7 +5,7 @@ Simple Generic C HashTable with Chaining
 
 To create a new hash table:
 
-***htable* newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*), void* (*clonekeyfunc)(void*), void* (*clonevaluefunc)(void*));***
+***htable newTable(unsigned long (*hashfunc)(void*), int (*equalsfunc)(void*,void*), void* (*clonekeyfunc)(void*), void* (*clonevaluefunc)(void*));***
 
 The Arguments of this function are:
 * an hash function which receives a key in void* format and returns an unsigned long hash,
@@ -17,25 +17,25 @@ The Arguments of this function are:
 Examples of all these functions have been provided for Strings and integers, as seen below.
 
 To delete an hash table:                                 
-***void deleteHtable(htable* hashtable);***
+***void deleteHtable(htable hashtable);***
 
 To insert a new key-value pair in hash table:                    
-***void* put(htable* hashtable, void* key, void* value);***
+***void* put(htable hashtable, void* key, void* value);***
 
 If key already exists value is replaced.
 
 To get value from key:                 
-***void* get(htable* hashtable,void* key);***
+***void* get(htable hashtable,void* key);***
 
 returns malloced copy of value that should be freed when no longer needed
 
 To check if key exists in hash table:      
-***int contains(htable* hashtable,void* key);***
+***int contains(htable hashtable,void* key);***
 
 Returns 1 if key exists, 0 if it doesn't.
 
 To remove a key-value pair:     
-***void removePair(htable* hashtable,void* key);***
+***void removePair(htable hashtable,void* key);***
 
 Provided example required functions for String and Integers:         
 ***unsigned long hashString(void* voidkey);***  
